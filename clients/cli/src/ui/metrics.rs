@@ -51,7 +51,9 @@ impl SystemMetrics {
 
         let should_update_cpu = previous_metrics
             .and_then(|pm| pm.last_cpu_update)
-            .map(|last_update| now.duration_since(last_update) >= sysinfo::MINIMUM_CPU_UPDATE_INTERVAL)
+            .map(|last_update| {
+                now.duration_since(last_update) >= sysinfo::MINIMUM_CPU_UPDATE_INTERVAL
+            })
             .unwrap_or(true);
 
         let last_cpu_update = if should_update_cpu {
