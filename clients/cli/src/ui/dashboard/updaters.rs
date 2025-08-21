@@ -3,7 +3,7 @@
 //! Contains all methods for updating dashboard state from events
 
 use super::state::{DashboardState, FetchingState};
-
+use crate::system;
 use crate::events::{Event as WorkerEvent, EventType, Worker};
 use crate::ui::metrics::{SystemMetrics, TaskFetchInfo};
 
@@ -22,6 +22,10 @@ impl DashboardState {
             previous_peak,
             Some(&previous_metrics),
         );
+        
+        // Update GFLOPs in real-time
+        self.system_metrics.gflops = system::measure_gflops_realtime() as f64;
+
 
         // --- FIX: Add logic to update the history for the charts ---
         self.cpu_history.remove(0);
@@ -150,16 +154,8 @@ impl DashboardState {
 
     /// Update task fetch countdown based on current waiting state
     fn update_task_fetch_countdown(&mut self) {
-        if let Some((start_time, original_secs)) = &self.waiting_start_info {
-            let elapsed_secs = start_time.elapsed().as_secs();
-            let remaining_secs = original_secs.saturating_sub(elapsed_secs);
-
+        if let Some((_start_time, _original_secs)) = &self.waiting_start_info {
             self.task_fetch_info = TaskFetchInfo {};
-
-            // Clear expired countdown
-            if remaining_secs == 0 {
-                self.waiting_start_info = None;
-            }
         } else {
             // No active countdown, assume we can fetch
             self.task_fetch_info = TaskFetchInfo {};
@@ -197,7 +193,7 @@ impl DashboardState {
 
     /// Extract wait seconds from message. Expected format: "...ready for next task (30) seconds"
     fn extract_wait_seconds(msg: &str) -> Option<u64> {
-        let start = msg.find("(")?;
+        let start = msg.find('(')?;
         let end = msg[start..].find(") seconds")?;
         msg[start + 1..start + end].parse().ok()
     }
