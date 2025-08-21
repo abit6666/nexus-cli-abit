@@ -34,31 +34,7 @@ There have been several testnets so far:
 
 ---
 
-## Quick Start
 
-### Installation
-
-#### Precompiled Binary 
-
-For the simplest and most reliable installation:
-
-```bash
-curl https://cli.nexus.xyz/ | sh
-```
-
-This will:
-1. Download and install the latest precompiled binary for your platform.
-2. Prompt you to accept the Terms of Use.
-3. Start the CLI in interactive mode.
-
-The template installation script is viewable [here](./public/install.sh.template).
-
-
-Of course, here is a README file with a step-by-step installation guide.
-
-## Nexus CLI Installation Guide
-
-The Nexus Command-Line Interface (CLI) is a powerful tool for interacting with the Nexus network. This guide will walk you through the installation process.
 
 -----
 
