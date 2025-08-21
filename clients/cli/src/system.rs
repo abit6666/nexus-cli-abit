@@ -110,6 +110,46 @@ pub fn measure_gflops() -> f32 {
     })
 }
 
+/// A lightweight, real-time version of `measure_gflops`.
+/// This function runs a much smaller benchmark and is not cached,
+/// making it suitable for frequent calls in the UI update loop.
+pub fn measure_gflops_realtime() -> f32 {
+    const REALTIME_TESTS: u64 = 100_000; // Reduced number of tests for quick execution
+    const REALTIME_REPEATS: usize = 1; // No need to average for a quick snapshot
+
+    let num_cores: u64 = match available_parallelism() {
+        Ok(cores) => cores.get() as u64,
+        Err(_) => 1, // Fallback to 1
+    };
+
+    let avg_flops: f64 = (0..REALTIME_REPEATS)
+        .map(|_| {
+            let start = Instant::now();
+
+            let total_flops: u64 = (0..num_cores)
+                .map(|_| {
+                    let mut x: f64 = 1.0;
+                    for _ in 0..REALTIME_TESTS {
+                        x = black_box((x.sin() + 1.0) * 0.5 / 1.1);
+                    }
+                    REALTIME_TESTS * OPERATIONS_PER_ITERATION
+                })
+                .sum();
+            
+            let elapsed = start.elapsed().as_secs_f64();
+            if elapsed > 0.0 {
+                total_flops as f64 / elapsed
+            } else {
+                0.0
+            }
+        })
+        .sum::<f64>()
+        / REALTIME_REPEATS as f64;
+
+    (avg_flops / 1e9) as f32
+}
+
+
 /// Get the memory usage of the current process and the total system memory, in MB.
 pub fn get_memory_info() -> (i32, i32) {
     let mut system = System::new_all();
