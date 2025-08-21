@@ -15,7 +15,7 @@ pub fn render_footer(f: &mut Frame, area: ratatui::layout::Rect, state: &Dashboa
 
     // Animate the scroll position based on the tick
     let text_len = full_text.len();
-    let start_index = (state.tick as usize / 2) % base_text.len();
+    let start_index = (state.tick / 2) % base_text.len();
 
     let scrolling_text = if text_len > start_index {
         &full_text[start_index..]
