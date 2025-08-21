@@ -38,7 +38,7 @@ There have been several testnets so far:
 
 ### Installation
 
-#### Precompiled Binary (Recommended)
+#### Precompiled Binary 
 
 For the simplest and most reliable installation:
 
