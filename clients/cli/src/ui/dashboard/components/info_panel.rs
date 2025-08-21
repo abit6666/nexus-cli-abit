@@ -5,9 +5,9 @@
 use super::super::state::DashboardState;
 use super::theme;
 use crate::environment::Environment;
+use ratatui::Frame;
 use ratatui::prelude::{Constraint, Style};
 use ratatui::widgets::{Block, BorderType, Borders, Cell, Row, Table};
-use ratatui::Frame;
 
 /// Renders the info panel as a structured table.
 pub fn render_info_panel(f: &mut Frame, area: ratatui::layout::Rect, state: &DashboardState) {
@@ -27,13 +27,11 @@ pub fn render_info_panel(f: &mut Frame, area: ratatui::layout::Rect, state: &Das
     let rows = vec![
         Row::new(vec![
             Cell::from("Node ID"),
-            Cell::from(
-                if let Some(id) = state.node_id {
-                    id.to_string()
-                } else {
-                    "Disconnected".to_string()
-                },
-            )
+            Cell::from(if let Some(id) = state.node_id {
+                id.to_string()
+            } else {
+                "Disconnected".to_string()
+            })
             .style(theme::text_style()),
         ]),
         Row::new(vec![

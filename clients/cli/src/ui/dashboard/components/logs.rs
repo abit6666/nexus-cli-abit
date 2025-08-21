@@ -4,11 +4,11 @@ use super::super::state::DashboardState;
 use super::super::utils::{clean_http_error_message, format_compact_timestamp};
 use super::theme;
 use crate::events::EventType;
+use ratatui::Frame;
 use ratatui::prelude::Style;
 use ratatui::symbols;
 use ratatui::text::{Line, Span};
 use ratatui::widgets::{Block, Borders, Paragraph, Wrap};
-use ratatui::Frame;
 
 pub fn render_logs_panel(f: &mut Frame, area: ratatui::layout::Rect, state: &DashboardState) {
     let max_logs = (area.height.saturating_sub(2)) as usize;

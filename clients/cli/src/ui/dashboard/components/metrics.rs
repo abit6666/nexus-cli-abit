@@ -4,20 +4,14 @@
 
 use super::super::state::DashboardState;
 use super::theme;
+use ratatui::Frame;
 use ratatui::prelude::{Alignment, Constraint, Direction, Layout, Modifier, Style};
 use ratatui::symbols;
 use ratatui::text::{Line, Span};
-use ratatui::widgets::{
-    Axis, Block, BorderType, Borders, Chart, Dataset, Gauge, Paragraph,
-};
-use ratatui::Frame;
+use ratatui::widgets::{Axis, Block, BorderType, Borders, Chart, Dataset, Gauge, Paragraph};
 
 /// Renders the system metric charts (CPU and RAM).
-pub fn render_system_charts(
-    f: &mut Frame,
-    area: ratatui::layout::Rect,
-    state: &DashboardState,
-) {
+pub fn render_system_charts(f: &mut Frame, area: ratatui::layout::Rect, state: &DashboardState) {
     let metrics = &state.system_metrics;
 
     let chunks = Layout::default()
@@ -33,11 +27,13 @@ pub fn render_system_charts(
         .map(|(i, &v)| (i as f64, v as f64))
         .collect();
 
-    let cpu_datasets = vec![Dataset::default()
-        .name("CPU %")
-        .marker(symbols::Marker::Braille)
-        .style(Style::default().fg(metrics.cpu_color()))
-        .data(&cpu_data)];
+    let cpu_datasets = vec![
+        Dataset::default()
+            .name("CPU %")
+            .marker(symbols::Marker::Braille)
+            .style(Style::default().fg(metrics.cpu_color()))
+            .data(&cpu_data),
+    ];
 
     let cpu_chart = Chart::new(cpu_datasets)
         .block(
@@ -67,11 +63,7 @@ pub fn render_system_charts(
                 .title("Usage %")
                 .style(Style::default().fg(theme::COLOR_DIM))
                 .bounds([0.0, 100.0])
-                .labels(vec![
-                    Span::from("0"),
-                    Span::from("50"),
-                    Span::from("100"),
-                ]),
+                .labels(vec![Span::from("0"), Span::from("50"), Span::from("100")]),
         );
     f.render_widget(cpu_chart, chunks[0]);
 
@@ -82,11 +74,13 @@ pub fn render_system_charts(
         .enumerate()
         .map(|(i, &v)| (i as f64, v as f64))
         .collect();
-    let ram_datasets = vec![Dataset::default()
-        .name("RAM %")
-        .marker(symbols::Marker::Braille)
-        .style(Style::default().fg(metrics.ram_color()))
-        .data(&ram_data)];
+    let ram_datasets = vec![
+        Dataset::default()
+            .name("RAM %")
+            .marker(symbols::Marker::Braille)
+            .style(Style::default().fg(metrics.ram_color()))
+            .data(&ram_data),
+    ];
 
     let ram_chart = Chart::new(ram_datasets)
         .block(
@@ -116,11 +110,7 @@ pub fn render_system_charts(
                 .title("Usage %")
                 .style(Style::default().fg(theme::COLOR_DIM))
                 .bounds([0.0, 100.0])
-                .labels(vec![
-                    Span::from("0"),
-                    Span::from("50"),
-                    Span::from("100"),
-                ]),
+                .labels(vec![Span::from("0"), Span::from("50"), Span::from("100")]),
         );
     f.render_widget(ram_chart, chunks[1]);
 }
@@ -196,7 +186,10 @@ pub fn render_zkvm_metrics(f: &mut Frame, area: ratatui::layout::Rect, state: &D
                 .bg(theme::PRIMARY_BLACK),
         )
         .percent(completed_percent)
-        .label(format!("{} / {}", metrics.tasks_submitted, metrics.tasks_fetched));
+        .label(format!(
+            "{} / {}",
+            metrics.tasks_submitted, metrics.tasks_fetched
+        ));
     f.render_widget(completed_gauge, inner_chunks[2]);
 
     let success_gauge = Gauge::default()

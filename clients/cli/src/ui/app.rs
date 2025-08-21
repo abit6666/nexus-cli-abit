@@ -4,11 +4,11 @@
 
 use crate::environment::Environment;
 use crate::events::Event as WorkerEvent;
-use crate::ui::dashboard::{render_dashboard, DashboardState};
+use crate::ui::dashboard::{DashboardState, render_dashboard};
 use crate::ui::login::render_login;
 use crate::ui::splash::render_splash;
 use crossterm::event::{self, Event, KeyCode};
-use ratatui::{backend::Backend, Frame, Terminal};
+use ratatui::{Frame, Terminal, backend::Backend};
 use std::time::{Duration, Instant};
 use tokio::sync::{broadcast, mpsc};
 
@@ -39,7 +39,6 @@ impl UIConfig {
         }
     }
 }
-
 
 /// The different screens in the application.
 #[derive(Debug)]
@@ -130,8 +129,12 @@ impl App {
             self.latest_version.clone(),
             self.gflops,
         );
-        let state =
-            DashboardState::new(node_id, self.environment.clone(), self.start_time, ui_config);
+        let state = DashboardState::new(
+            node_id,
+            self.environment.clone(),
+            self.start_time,
+            ui_config,
+        );
         self.current_screen = Screen::Dashboard(Box::new(state));
     }
 }

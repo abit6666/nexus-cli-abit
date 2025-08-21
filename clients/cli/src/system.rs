@@ -135,7 +135,7 @@ pub fn measure_gflops_realtime() -> f32 {
                     REALTIME_TESTS * OPERATIONS_PER_ITERATION
                 })
                 .sum();
-            
+
             let elapsed = start.elapsed().as_secs_f64();
             if elapsed > 0.0 {
                 total_flops as f64 / elapsed
@@ -148,7 +148,6 @@ pub fn measure_gflops_realtime() -> f32 {
 
     (avg_flops / 1e9) as f32
 }
-
 
 /// Get the memory usage of the current process and the total system memory, in MB.
 pub fn get_memory_info() -> (i32, i32) {

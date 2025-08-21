@@ -3,10 +3,10 @@
 use super::super::state::DashboardState;
 use super::theme;
 use crate::events::ProverState;
+use ratatui::Frame;
 use ratatui::layout::{Alignment, Constraint, Direction, Layout};
 use ratatui::prelude::{Modifier, Style};
 use ratatui::widgets::{Block, Borders, Paragraph};
-use ratatui::Frame;
 
 pub fn render_header(f: &mut Frame, area: ratatui::layout::Rect, state: &DashboardState) {
     let chunks = Layout::default()

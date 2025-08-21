@@ -4,10 +4,10 @@
 
 use super::super::state::DashboardState;
 use super::theme;
+use ratatui::Frame;
 use ratatui::layout::Alignment;
 use ratatui::prelude::{Modifier, Style};
 use ratatui::widgets::Paragraph;
-use ratatui::Frame;
 
 pub fn render_footer(f: &mut Frame, area: ratatui::layout::Rect, state: &DashboardState) {
     let base_text = " [Q] QUIT | NEXUS NETWORK PROVER | ALL SYSTEMS OPERATIONAL ";

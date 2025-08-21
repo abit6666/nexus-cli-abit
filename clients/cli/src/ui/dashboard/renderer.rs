@@ -2,10 +2,10 @@
 
 use super::components::{footer, header, info_panel, logs, metrics, theme};
 use super::state::DashboardState;
+use ratatui::Frame;
 use ratatui::layout::{Constraint, Direction, Layout};
 use ratatui::prelude::Style;
 use ratatui::widgets::{Block, BorderType};
-use ratatui::Frame;
 
 pub fn render_dashboard(f: &mut Frame, state: &DashboardState) {
     // Set the main background color

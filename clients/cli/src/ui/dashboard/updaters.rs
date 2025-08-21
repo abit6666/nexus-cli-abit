@@ -3,8 +3,8 @@
 //! Contains all methods for updating dashboard state from events
 
 use super::state::{DashboardState, FetchingState};
-use crate::system;
 use crate::events::{Event as WorkerEvent, EventType, Worker};
+use crate::system;
 use crate::ui::metrics::{SystemMetrics, TaskFetchInfo};
 
 use std::time::Instant;
@@ -22,10 +22,9 @@ impl DashboardState {
             previous_peak,
             Some(&previous_metrics),
         );
-        
+
         // Update GFLOPs in real-time
         self.system_metrics.gflops = system::measure_gflops_realtime() as f64;
-
 
         // --- FIX: Add logic to update the history for the charts ---
         self.cpu_history.remove(0);
