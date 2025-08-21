@@ -82,8 +82,8 @@ Before you begin, ensure you have the following installed on your system:
 
 2.  **Build the CLI**:
 
-    ```bash
-  cargo build --release
+   ```bash
+    cargo build --release
     ```
 
 
