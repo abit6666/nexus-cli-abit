@@ -1,8 +1,8 @@
 //! TUI mode execution
 
 use super::{
-    SessionData,
     messages::{print_session_exit_success, print_session_shutdown, print_session_starting},
+    SessionData,
 };
 use crate::orchestrator::Orchestrator;
 use crate::ui::{self, UIConfig};
@@ -10,9 +10,9 @@ use crate::version::checker::check_for_new_version;
 use crossterm::{
     event::{DisableMouseCapture, EnableMouseCapture},
     execute,
-    terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode},
+    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
-use ratatui::{Terminal, backend::CrosstermBackend};
+use ratatui::{backend::CrosstermBackend, Terminal};
 use std::{error::Error, io};
 
 /// Runs the application in TUI mode
@@ -65,6 +65,7 @@ pub async fn run_tui_mode(
         session.num_workers,
         version_update_available,
         latest_version,
+        session.gflops,
     );
 
     let app = ui::App::new(

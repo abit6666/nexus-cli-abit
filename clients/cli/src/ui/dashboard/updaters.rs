@@ -140,7 +140,6 @@ impl DashboardState {
                 .max(self.zkvm_metrics.tasks_submitted);
 
             self.zkvm_metrics.last_task_status = "Success".to_string();
-            self.set_last_submission_timestamp(Some(event.timestamp.clone()));
 
             // Update total points
             self.zkvm_metrics._total_points = (self.zkvm_metrics.tasks_submitted as u64) * 300;
@@ -155,11 +154,7 @@ impl DashboardState {
             let elapsed_secs = start_time.elapsed().as_secs();
             let remaining_secs = original_secs.saturating_sub(elapsed_secs);
 
-            self.task_fetch_info = TaskFetchInfo {
-                backoff_duration_secs: *original_secs,
-                time_since_last_fetch_secs: elapsed_secs,
-                can_fetch_now: remaining_secs == 0,
-            };
+            self.task_fetch_info = TaskFetchInfo {};
 
             // Clear expired countdown
             if remaining_secs == 0 {
@@ -167,11 +162,7 @@ impl DashboardState {
             }
         } else {
             // No active countdown, assume we can fetch
-            self.task_fetch_info = TaskFetchInfo {
-                backoff_duration_secs: 0,
-                time_since_last_fetch_secs: 0,
-                can_fetch_now: true,
-            };
+            self.task_fetch_info = TaskFetchInfo {};
         }
     }
 

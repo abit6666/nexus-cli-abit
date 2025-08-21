@@ -110,25 +110,8 @@ impl SystemMetrics {
         }
     }
 
-    pub fn peak_ram_ratio(&self) -> f64 {
-        if self.total_ram_bytes > 0 {
-            self.peak_ram_bytes as f64 / self.total_ram_bytes as f64
-        } else {
-            0.0
-        }
-    }
-
     pub fn format_ram(&self) -> String {
         let mb = self.ram_bytes as f64 / 1_048_576.0;
-        if mb >= 1024.0 {
-            format!("{:.1} GB", mb / 1024.0)
-        } else {
-            format!("{:.1} MB", mb)
-        }
-    }
-
-    pub fn format_peak_ram(&self) -> String {
-        let mb = self.peak_ram_bytes as f64 / 1_048_576.0;
         if mb >= 1024.0 {
             format!("{:.1} GB", mb / 1024.0)
         } else {
@@ -206,35 +189,7 @@ impl ZkVMMetrics {
             _ => Color::Red,
         }
     }
-
-    pub fn format_runtime(&self) -> String {
-        let hours = self.zkvm_runtime_secs / 3600;
-        let minutes = (self.zkvm_runtime_secs % 3600) / 60;
-        let seconds = self.zkvm_runtime_secs % 60;
-
-        if hours > 0 {
-            format!("{}h {}m {}s", hours, minutes, seconds)
-        } else if minutes > 0 {
-            format!("{}m {}s", minutes, seconds)
-        } else {
-            format!("{}s", seconds)
-        }
-    }
 }
 
-#[derive(Debug, Clone)]
-pub struct TaskFetchInfo {
-    pub backoff_duration_secs: u64,
-    pub time_since_last_fetch_secs: u64,
-    pub can_fetch_now: bool,
-}
-
-impl Default for TaskFetchInfo {
-    fn default() -> Self {
-        Self {
-            backoff_duration_secs: 0,
-            time_since_last_fetch_secs: 0,
-            can_fetch_now: true,
-        }
-    }
-}
+#[derive(Debug, Clone, Default)]
+pub struct TaskFetchInfo {}

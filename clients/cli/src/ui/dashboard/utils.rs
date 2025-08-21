@@ -2,18 +2,6 @@
 //!
 //! Contains helper functions used across dashboard components
 
-use crate::events::Worker;
-use ratatui::prelude::Color;
-
-/// Get a ratatui color for a worker based on its type
-pub fn get_worker_color(worker: &Worker) -> Color {
-    match worker {
-        Worker::TaskFetcher => Color::Cyan,
-        Worker::Prover(_) => Color::Yellow,
-        Worker::ProofSubmitter => Color::Green,
-    }
-}
-
 /// Format compact timestamp with date and time from full timestamp
 pub fn format_compact_timestamp(timestamp: &str) -> String {
     // Extract from "YYYY-MM-DD HH:MM:SS" format

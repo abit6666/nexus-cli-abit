@@ -32,16 +32,12 @@ pub struct DashboardState {
     pub num_threads: usize,
     pub pending_events: VecDeque<WorkerEvent>,
     pub activity_logs: VecDeque<WorkerEvent>,
-    pub update_available: bool,
-    pub latest_version: Option<String>,
-    pub with_background_color: bool,
     pub system_metrics: SystemMetrics,
     pub zkvm_metrics: ZkVMMetrics,
     pub task_fetch_info: TaskFetchInfo,
     pub tick: usize,
     pub cpu_history: Vec<u64>, // Field for CPU chart data
     pub ram_history: Vec<u64>, // Field for RAM chart data
-    last_submission_timestamp: Option<String>,
     fetching_state: FetchingState,
     sysinfo: System,
     current_prover_state: ProverState,
@@ -57,6 +53,9 @@ impl DashboardState {
         start_time: Instant,
         ui_config: UIConfig,
     ) -> Self {
+        let mut system_metrics = SystemMetrics::default();
+        system_metrics.gflops = ui_config.gflops; // Set initial GFLOPs
+
         Self {
             node_id,
             environment,
@@ -67,16 +66,12 @@ impl DashboardState {
             num_threads: ui_config.num_threads,
             pending_events: VecDeque::new(),
             activity_logs: VecDeque::new(),
-            update_available: ui_config.update_available,
-            latest_version: ui_config.latest_version,
-            with_background_color: ui_config.with_background_color,
-            system_metrics: SystemMetrics::default(),
+            system_metrics,
             zkvm_metrics: ZkVMMetrics::default(),
             task_fetch_info: TaskFetchInfo::default(),
             tick: 0,
             cpu_history: vec![0; 60], // Initialize with 60 zero-values
             ram_history: vec![0; 60], // Initialize with 60 zero-values
-            last_submission_timestamp: None,
             fetching_state: FetchingState::Idle,
             sysinfo: System::new_all(),
             current_prover_state: ProverState::Waiting,
@@ -89,10 +84,6 @@ impl DashboardState {
         &self.fetching_state
     }
 
-    pub fn last_submission_timestamp(&self) -> &Option<String> {
-        &self.last_submission_timestamp
-    }
-
     pub fn set_fetching_state(&mut self, state: FetchingState) {
         self.fetching_state = state;
     }
@@ -103,10 +94,6 @@ impl DashboardState {
 
     pub fn set_current_prover_state(&mut self, state: ProverState) {
         self.current_prover_state = state;
-    }
-
-    pub fn set_last_submission_timestamp(&mut self, timestamp: Option<String>) {
-        self.last_submission_timestamp = timestamp;
     }
 
     pub fn get_sysinfo_mut(&mut self) -> &mut System {

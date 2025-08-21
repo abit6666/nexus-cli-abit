@@ -4,11 +4,11 @@
 
 use crate::environment::Environment;
 use crate::events::Event as WorkerEvent;
-use crate::ui::dashboard::{DashboardState, render_dashboard};
+use crate::ui::dashboard::{render_dashboard, DashboardState};
 use crate::ui::login::render_login;
 use crate::ui::splash::render_splash;
 use crossterm::event::{self, Event, KeyCode};
-use ratatui::{Frame, Terminal, backend::Backend};
+use ratatui::{backend::Backend, Frame, Terminal};
 use std::time::{Duration, Instant};
 use tokio::sync::{broadcast, mpsc};
 
@@ -19,6 +19,7 @@ pub struct UIConfig {
     pub num_threads: usize,
     pub update_available: bool,
     pub latest_version: Option<String>,
+    pub gflops: f64,
 }
 
 impl UIConfig {
@@ -27,15 +28,18 @@ impl UIConfig {
         num_threads: usize,
         update_available: bool,
         latest_version: Option<String>,
+        gflops: f64,
     ) -> Self {
         Self {
             with_background_color,
             num_threads,
             update_available,
             latest_version,
+            gflops,
         }
     }
 }
+
 
 /// The different screens in the application.
 #[derive(Debug)]
@@ -84,6 +88,9 @@ pub struct App {
 
     /// Latest version available, if any.
     latest_version: Option<String>,
+
+    /// Estimated GFLOP/s
+    gflops: f64,
 }
 
 impl App {
@@ -108,6 +115,7 @@ impl App {
             num_threads: ui_config.num_threads,
             version_update_available: ui_config.update_available,
             latest_version: ui_config.latest_version,
+            gflops: ui_config.gflops,
         }
     }
 
@@ -120,13 +128,10 @@ impl App {
             self.num_threads,
             self.version_update_available,
             self.latest_version.clone(),
+            self.gflops,
         );
-        let state = DashboardState::new(
-            node_id,
-            self.environment.clone(),
-            self.start_time,
-            ui_config,
-        );
+        let state =
+            DashboardState::new(node_id, self.environment.clone(), self.start_time, ui_config);
         self.current_screen = Screen::Dashboard(Box::new(state));
     }
 }
@@ -172,6 +177,7 @@ pub async fn run<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> std::i
                     app.num_threads,
                     app.version_update_available,
                     app.latest_version.clone(),
+                    app.gflops,
                 );
                 app.current_screen = Screen::Dashboard(Box::new(DashboardState::new(
                     app.node_id,
@@ -207,6 +213,7 @@ pub async fn run<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> std::i
                                 app.num_threads,
                                 app.version_update_available,
                                 app.latest_version.clone(),
+                                app.gflops,
                             );
                             app.current_screen = Screen::Dashboard(Box::new(DashboardState::new(
                                 app.node_id,

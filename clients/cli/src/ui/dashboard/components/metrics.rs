@@ -140,7 +140,7 @@ pub fn render_zkvm_metrics(f: &mut Frame, area: ratatui::layout::Rect, state: &D
         .direction(Direction::Vertical)
         .margin(1)
         .constraints([
-            Constraint::Length(3),
+            Constraint::Length(4),
             Constraint::Length(1),
             Constraint::Length(3),
             Constraint::Length(3),
@@ -154,6 +154,13 @@ pub fn render_zkvm_metrics(f: &mut Frame, area: ratatui::layout::Rect, state: &D
             Span::styled("Tasks Fetched:  ", theme::dim_text_style()),
             Span::styled(
                 format!("{}", metrics.tasks_fetched),
+                theme::text_style().add_modifier(Modifier::BOLD),
+            ),
+        ]),
+        Line::from(vec![
+            Span::styled("Threads:        ", theme::dim_text_style()),
+            Span::styled(
+                format!("{}", state.num_threads),
                 theme::text_style().add_modifier(Modifier::BOLD),
             ),
         ]),
