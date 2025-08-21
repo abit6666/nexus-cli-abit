@@ -53,6 +53,7 @@ This will:
 
 The template installation script is viewable [here](./public/install.sh.template).
 
+
 Of course, here is a README file with a step-by-step installation guide.
 
 ## Nexus CLI Installation Guide
@@ -82,11 +83,15 @@ Before you begin, ensure you have the following installed on your system:
 
 2.  **Build the CLI**:
 
-   ```bash
+    ```bash
     cargo build --release
     ```
 
+3.  **Run the CLI**:
 
+    ```bash
+    ./target/release/nexus-network start --node-id 00000
+    ```
 
 -----
 
@@ -117,7 +122,6 @@ To stop the container, run:
 ```bash
 docker compose down
 ```
-
 ## License
 
 Nexus CLI is distributed under the terms of both the [MIT License](./LICENSE-MIT) and the [Apache License (Version 2.0)](./LICENSE-APACHE).
