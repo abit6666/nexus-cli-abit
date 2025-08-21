@@ -53,8 +53,10 @@ impl DashboardState {
         start_time: Instant,
         ui_config: UIConfig,
     ) -> Self {
-        let mut system_metrics = SystemMetrics::default();
-        system_metrics.gflops = ui_config.gflops; // Set initial GFLOPs
+        let system_metrics = SystemMetrics {
+            gflops: ui_config.gflops,
+            ..Default::default()
+        };
 
         Self {
             node_id,
