@@ -23,52 +23,30 @@ pub enum FetchingState {
 /// Enhanced dashboard state with real-time metrics and animations.
 #[derive(Debug)]
 pub struct DashboardState {
-    /// Unique identifier for the node.
     pub node_id: Option<u64>,
-    /// The environment in which the application is running.
     pub environment: Environment,
-    /// The start time of the application, used for computing uptime.
     pub start_time: Instant,
-    /// Last task fetched ID
     pub last_task: Option<String>,
-    /// The current task being executed by the node, if any.
     pub current_task: Option<String>,
-    /// Total RAM available on the machine, in GB.
     pub total_ram_gb: f64,
-    /// Number of worker threads being used for proving.
     pub num_threads: usize,
-    /// Queue of events waiting to be processed
     pub pending_events: VecDeque<WorkerEvent>,
-    /// Activity logs for display (last 50 events)
     pub activity_logs: VecDeque<WorkerEvent>,
-    /// Whether a new version is available.
     pub update_available: bool,
-    /// The latest version string, if known.
     pub latest_version: Option<String>,
-    /// Whether to enable background colors
     pub with_background_color: bool,
-
-    /// System metrics (CPU, RAM, etc.)
     pub system_metrics: SystemMetrics,
-    /// zkVM task metrics
     pub zkvm_metrics: ZkVMMetrics,
-    /// Task fetch information for accurate timing
     pub task_fetch_info: TaskFetchInfo,
-    /// Animation tick counter
     pub tick: usize,
-
-    /// Timestamp of last successful proof submission
+    pub cpu_history: Vec<u64>, // Field for CPU chart data
+    pub ram_history: Vec<u64>, // Field for RAM chart data
     last_submission_timestamp: Option<String>,
-    /// Current fetching state (active, timeout, idle)
     fetching_state: FetchingState,
-    /// Persistent system info instance for accurate CPU measurements
     sysinfo: System,
-    /// Current prover state from state events
     current_prover_state: ProverState,
-    /// Track when Step 2 started for current task
     pub step2_start_time: Option<Instant>,
-    /// Track the start time and original wait duration for current waiting period
-    pub waiting_start_info: Option<(Instant, u64)>, // (start_time, original_wait_secs)
+    pub waiting_start_info: Option<(Instant, u64)>,
 }
 
 impl DashboardState {
@@ -92,20 +70,21 @@ impl DashboardState {
             update_available: ui_config.update_available,
             latest_version: ui_config.latest_version,
             with_background_color: ui_config.with_background_color,
-
             system_metrics: SystemMetrics::default(),
             zkvm_metrics: ZkVMMetrics::default(),
             task_fetch_info: TaskFetchInfo::default(),
             tick: 0,
+            cpu_history: vec![0; 60], // Initialize with 60 zero-values
+            ram_history: vec![0; 60], // Initialize with 60 zero-values
             last_submission_timestamp: None,
             fetching_state: FetchingState::Idle,
-            sysinfo: System::new_all(), // Initialize with all data for first refresh
+            sysinfo: System::new_all(),
             current_prover_state: ProverState::Waiting,
             step2_start_time: None,
             waiting_start_info: None,
         }
     }
-    // Getter methods for private fields
+
     pub fn fetching_state(&self) -> &FetchingState {
         &self.fetching_state
     }
@@ -114,7 +93,6 @@ impl DashboardState {
         &self.last_submission_timestamp
     }
 
-    // Setter methods for private fields (for updaters)
     pub fn set_fetching_state(&mut self, state: FetchingState) {
         self.fetching_state = state;
     }
@@ -135,7 +113,6 @@ impl DashboardState {
         &mut self.sysinfo
     }
 
-    /// Add an event to activity logs with size limit
     pub fn add_to_activity_log(&mut self, event: WorkerEvent) {
         if self.activity_logs.len() >= MAX_ACTIVITY_LOGS {
             self.activity_logs.pop_front();
@@ -143,7 +120,6 @@ impl DashboardState {
         self.activity_logs.push_back(event);
     }
 
-    /// Add an event to the processing queue
     pub fn add_event(&mut self, event: WorkerEvent) {
         self.pending_events.push_back(event);
     }

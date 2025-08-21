@@ -23,6 +23,15 @@ impl DashboardState {
             Some(&previous_metrics),
         );
 
+        // --- FIX: Add logic to update the history for the charts ---
+        self.cpu_history.remove(0);
+        self.cpu_history
+            .push(self.system_metrics.cpu_percent as u64);
+        self.ram_history.remove(0);
+        self.ram_history
+            .push((self.system_metrics.ram_ratio() * 100.0) as u64);
+        // --- END OF FIX ---
+
         // Process all queued events one by one
         while let Some(event) = self.pending_events.pop_front() {
             // Add to activity logs for display

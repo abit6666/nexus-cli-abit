@@ -1,21 +1,17 @@
 //! Dashboard logs panel component
-//!
-//! Renders activity logs with event formatting
 
 use super::super::state::DashboardState;
-use super::super::utils::{clean_http_error_message, format_compact_timestamp, get_worker_color};
+use super::super::utils::{clean_http_error_message, format_compact_timestamp};
+use super::theme;
 use crate::events::EventType;
-use crate::logging::LogLevel;
-use ratatui::Frame;
-use ratatui::prelude::{Color, Style};
+use ratatui::prelude::Style;
+use ratatui::symbols;
 use ratatui::text::{Line, Span};
-use ratatui::widgets::{Block, BorderType, Borders, Padding, Paragraph, Wrap};
+use ratatui::widgets::{Block, Borders, Paragraph, Wrap};
+use ratatui::Frame;
 
-/// Render enhanced logs panel with better event formatting.
 pub fn render_logs_panel(f: &mut Frame, area: ratatui::layout::Rect, state: &DashboardState) {
-    // Calculate how many log lines can fit in the available area
-    // Account for borders and padding (subtract 3 for top/bottom borders + padding)
-    let max_logs = (area.height.saturating_sub(3)) as usize;
+    let max_logs = (area.height.saturating_sub(2)) as usize;
     let log_count = if max_logs > 0 { max_logs } else { 1 };
 
     let log_lines: Vec<Line> = state
@@ -23,48 +19,36 @@ pub fn render_logs_panel(f: &mut Frame, area: ratatui::layout::Rect, state: &Das
         .iter()
         .filter(|event| event.should_display())
         .rev()
-        .take(log_count) // Show as many logs as fit in terminal
+        .take(log_count)
         .map(|event| {
-            let status_icon = match (event.event_type, event.log_level) {
-                (EventType::Success, _) => "✅",
-                (EventType::Error, LogLevel::Error) => "❌",
-                (EventType::Error, LogLevel::Warn) => "",
-                (EventType::Error, _) => "❌",
-                (EventType::Refresh, _) => "",
-                (EventType::Waiting, _) => "",
-                (EventType::StateChange, _) => "", // StateChange events shouldn't be displayed, but add for completeness
+            let (status_icon, msg_style) = match event.event_type {
+                EventType::Success => ("✔", Style::default().fg(theme::COLOR_SUCCESS)),
+                EventType::Error => ("✖", Style::default().fg(theme::COLOR_ERROR)),
+                EventType::Waiting => ("…", Style::default().fg(theme::COLOR_DIM)),
+                _ => ("›", theme::text_style()),
             };
 
-            let worker_color = get_worker_color(&event.worker);
             let compact_time = format_compact_timestamp(&event.timestamp);
             let cleaned_msg = clean_http_error_message(&event.msg);
 
-            // Don't truncate - let ratatui handle wrapping naturally
             Line::from(vec![
-                Span::raw(format!("{} ", status_icon)),
-                Span::styled(
-                    format!("{} ", compact_time),
-                    Style::default().fg(Color::DarkGray),
-                ),
-                Span::styled(cleaned_msg, Style::default().fg(worker_color)),
+                Span::styled(format!("{} ", compact_time), theme::dim_text_style()),
+                Span::styled(format!("{} ", status_icon), msg_style),
+                Span::styled(cleaned_msg, msg_style),
             ])
         })
         .collect();
 
-    let log_paragraph = if log_lines.is_empty() {
-        Paragraph::new(vec![Line::from("Starting up...")])
-    } else {
-        Paragraph::new(log_lines)
-    };
-
     let logs_block = Block::default()
-        .title("ACTIVITY LOG")
+        .title(" LIVE LOG STREAM ")
+        .title_style(theme::block_title_style())
         .borders(Borders::ALL)
-        .border_type(BorderType::Rounded)
-        .border_style(Style::default().fg(Color::Cyan))
-        .padding(Padding::uniform(1));
+        .border_set(symbols::border::QUADRANT_OUTSIDE) // Sci-fi border
+        .border_style(theme::border_style());
 
-    let log_widget = log_paragraph.block(logs_block).wrap(Wrap { trim: true });
+    let log_widget = Paragraph::new(log_lines)
+        .block(logs_block)
+        .wrap(Wrap { trim: true });
 
     f.render_widget(log_widget, area);
 }
