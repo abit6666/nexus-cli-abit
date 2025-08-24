@@ -279,17 +279,12 @@ impl OrchestratorClient {
 
 /// Detect country code once globally without requiring a client instance.
 /// This ensures callers don't need to sequence a warm-up before using the result.
+#[allow(dead_code)]
 pub(crate) async fn detect_country_once() -> String {
     if let Some(country) = COUNTRY_CODE.get() {
         return country.clone();
     }
-
-    let client = match ClientBuilder::new().timeout(Duration::from_secs(5)).build() {
-        Ok(c) => c,
-        Err(_) => return "US".to_string(),
-    };
-
-    // Try Cloudflare first
+    // ... the rest of the function
     if let Ok(response) = client
         .get("https://cloudflare.com/cdn-cgi/trace")
         .send()
