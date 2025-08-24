@@ -40,7 +40,7 @@ const USER_AGENT: &str = concat!("nexus-cli/", env!("CARGO_PKG_VERSION"));
 // Only stores 2-letter country codes (e.g., "US", "CA", "GB") to help route
 // requests to the nearest Nexus network servers for better performance.
 // No precise location, IP addresses, or personal data is collected or stored.
-static COUNTRY_CODE: OnceLock<String> = OnceLock::new();
+pub(crate) static COUNTRY_CODE: OnceLock<String> = OnceLock::new();
 
 #[derive(Debug, Clone)]
 pub struct OrchestratorClient {
@@ -58,6 +58,12 @@ impl OrchestratorClient {
                 .expect("Failed to create HTTP client"),
             environment,
         }
+    }
+
+    /// Public accessor for privacy-preserving country code (cached during run)
+    #[allow(dead_code)]
+    pub async fn country(&self) -> String {
+        self.get_country().await
     }
 
     fn build_url(&self, endpoint: &str) -> String {
@@ -269,6 +275,54 @@ impl OrchestratorClient {
             Err("Invalid country code from ipinfo.io".into())
         }
     }
+}
+
+/// Detect country code once globally without requiring a client instance.
+/// This ensures callers don't need to sequence a warm-up before using the result.
+pub(crate) async fn detect_country_once() -> String {
+    if let Some(country) = COUNTRY_CODE.get() {
+        return country.clone();
+    }
+
+    let client = match ClientBuilder::new().timeout(Duration::from_secs(5)).build() {
+        Ok(c) => c,
+        Err(_) => return "US".to_string(),
+    };
+
+    // Try Cloudflare first
+    if let Ok(response) = client
+        .get("https://cloudflare.com/cdn-cgi/trace")
+        .send()
+        .await
+    {
+        if let Ok(text) = response.text().await {
+            for line in text.lines() {
+                if let Some(country) = line.strip_prefix("loc=") {
+                    let country = country.trim().to_uppercase();
+                    if country.len() == 2 && country.chars().all(|c| c.is_ascii_alphabetic()) {
+                        let _ = COUNTRY_CODE.set(country.clone());
+                        return country;
+                    }
+                }
+            }
+        }
+    }
+
+    // Fallback to ipinfo.io
+    if let Ok(response) = client.get("https://ipinfo.io/country").send().await {
+        if let Ok(text) = response.text().await {
+            let country = text.trim().to_uppercase();
+            if country.len() == 2 && country.chars().all(|c| c.is_ascii_alphabetic()) {
+                let _ = COUNTRY_CODE.set(country.clone());
+                return country;
+            }
+        }
+    }
+
+    // Default fallback
+    let fallback = "US".to_string();
+    let _ = COUNTRY_CODE.set(fallback.clone());
+    fallback
 }
 
 #[async_trait::async_trait]
