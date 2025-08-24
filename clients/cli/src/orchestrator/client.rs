@@ -280,8 +280,6 @@ impl OrchestratorClient {
 /// Detect country code once globally without requiring a client instance.
 /// This ensures callers don't need to sequence a warm-up before using the result.
 #[allow(dead_code)]
-// ... other code
-
 pub(crate) async fn detect_country_once() -> String {
     if let Some(country) = COUNTRY_CODE.get() {
         return country.clone();
@@ -327,9 +325,7 @@ pub(crate) async fn detect_country_once() -> String {
     let _ = COUNTRY_CODE.set(fallback.clone());
     fallback
 }
-    let _ = COUNTRY_CODE.set(fallback.clone());
-    fallback
-}
+
 
 #[async_trait::async_trait]
 impl Orchestrator for OrchestratorClient {
