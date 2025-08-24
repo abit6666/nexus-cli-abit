@@ -326,7 +326,6 @@ pub(crate) async fn detect_country_once() -> String {
     fallback
 }
 
-
 #[async_trait::async_trait]
 impl Orchestrator for OrchestratorClient {
     fn environment(&self) -> &Environment {
